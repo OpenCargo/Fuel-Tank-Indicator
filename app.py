@@ -60,8 +60,17 @@ percentage_tank3 = progressbar_value1 * 100
 liters3 = 0 
 time = datetime.now().strftime('%d-%m %H:%M')
 app = customtkinter.CTk()
-app.geometry("800x500")
+app.geometry("700x500")
+app.minsize(700,500)
 app.title("Fuel Indicator")
+
+app.grid_rowconfigure(0, weight=1)
+app.grid_rowconfigure(1, weight=1)
+app.grid_rowconfigure(2, weight=1)
+app.grid_rowconfigure(3, weight=1)
+app.grid_columnconfigure(0, weight=1)
+app.grid_columnconfigure(1, weight=1)
+app.grid_columnconfigure(2, weight=1)
 
 label_tank1 = customtkinter.CTkLabel(app, text="Tank 1:", font=(None, 30))
 label_tank1.grid(row=0, column=0, padx=40, pady=40)
