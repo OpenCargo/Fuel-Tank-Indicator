@@ -2,6 +2,7 @@ import customtkinter
 from udp_listener import udp_listener as udp
 import threading
 import math
+from datetime import datetime
 
 DIAMETER1 = 1.84
 LENGHT1 = 1.86
@@ -24,10 +25,11 @@ def calculate_liters(data, diameter, lenght):
     fuel_height = diameter - float(data)/100
     alfa = math.acos((diameter - 2 * fuel_height) / diameter)
     liters = 1000*lenght * (alfa * (diameter/2)**2 - (diameter/2 - fuel_height) * math.sqrt(diameter * fuel_height - fuel_height**2))
+
     return liters
 
 
-def update_liters_and_percentage(liters_label, percentage_label, progress_bar, capacity, diameter, lenght, data):
+def update_ui(liters_label, percentage_label, progress_bar, time_label, capacity, diameter, lenght,data):
     liters = calculate_liters(data, diameter, lenght)
     capacity_percentage = (liters / capacity) * 100
 
@@ -39,6 +41,9 @@ def update_liters_and_percentage(liters_label, percentage_label, progress_bar, c
 
     progress_bar_value = liters / capacity
     progress_bar.set(progress_bar_value)
+
+    time = datetime.now().strftime('%d-%m %H:%M')
+    time_label.configure(text=f"{time}")
 
 
 #starting values
@@ -53,7 +58,7 @@ liters2 = 0
 progressbar_value3 = 0.5
 percentage_tank3 = progressbar_value1 * 100
 liters3 = 0 
-
+time = datetime.now().strftime('%d-%m %H:%M')
 app = customtkinter.CTk()
 app.geometry("800x500")
 app.title("Fuel Indicator")
@@ -67,6 +72,8 @@ label_percentage1 = customtkinter.CTkLabel(app, text=f"{percentage_tank1}%", fon
 label_percentage1.grid(row=1, column=0, padx=40, pady=40)
 label_liters1 = customtkinter.CTkLabel(app, text=f"Liters: {liters1}", font=(None, 20))
 label_liters1.grid(row=2, column=0, padx=40, pady=40)
+label_last_update1 = customtkinter.CTkLabel(app, text =f"{time}", font = (None, 15))
+label_last_update1.grid(row=3, column=0, padx=40, pady=0)
 
 
 label_tank2 = customtkinter.CTkLabel(app, text="Tank 2:", font=(None, 30))
@@ -78,7 +85,8 @@ label_percentage2 = customtkinter.CTkLabel(app, text=f"{percentage_tank2}%", fon
 label_percentage2.grid(row=1, column=1, padx=40, pady=40)
 label_liters2 = customtkinter.CTkLabel(app, text=f"Liters: {liters2}", font=(None, 20))
 label_liters2.grid(row=2, column=1, padx=40, pady=40)
-
+label_last_update2 = customtkinter.CTkLabel(app, text =f"{time}", font = (None, 15))
+label_last_update2.grid(row=3, column=1, padx=40, pady=0)
 
 label_tank3 = customtkinter.CTkLabel(app, text="Tank 3:", font=(None, 30))
 label_tank3.grid(row=0, column=2, padx=40, pady=40)
@@ -89,11 +97,12 @@ label_percentage3 = customtkinter.CTkLabel(app, text=f"{percentage_tank3}%", fon
 label_percentage3.grid(row=1, column=2, padx=40, pady=40)
 label_liters3 = customtkinter.CTkLabel(app, text=f"Liters: {liters3}", font=(None, 20))
 label_liters3.grid(row=2, column=2, padx=40, pady=40)
+label_last_update3 = customtkinter.CTkLabel(app, text =f"{time}", font = (None, 15))
+label_last_update3.grid(row=3, column=2, padx=40, pady=0)
 
-
-udp_thread1 = threading.Thread(target=udp, args=(UDP_PORT1,(update_liters_and_percentage, label_liters1, label_percentage1, progressbar1, CAPACITY1, DIAMETER1, LENGHT1)))
-udp_thread2 = threading.Thread(target=udp, args=(UDP_PORT2,(update_liters_and_percentage, label_liters2, label_percentage2, progressbar2, CAPACITY2, DIAMETER2, LENGHT2)))
-udp_thread3 = threading.Thread(target=udp, args=(UDP_PORT3,(update_liters_and_percentage, label_liters3, label_percentage3, progressbar3, CAPACITY3, DIAMETER3, LENGHT3)))
+udp_thread1 = threading.Thread(target=udp, args=(UDP_PORT1,(update_ui, label_liters1, label_percentage1, progressbar1, label_last_update1, CAPACITY1, DIAMETER1, LENGHT1)))
+udp_thread2 = threading.Thread(target=udp, args=(UDP_PORT2,(update_ui, label_liters2, label_percentage2, progressbar2, label_last_update2, CAPACITY2, DIAMETER2, LENGHT2)))
+udp_thread3 = threading.Thread(target=udp, args=(UDP_PORT3,(update_ui, label_liters3, label_percentage3, progressbar3, label_last_update3, CAPACITY3, DIAMETER3, LENGHT3)))
 
 udp_thread1.start()
 udp_thread2.start()
