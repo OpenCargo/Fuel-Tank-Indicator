@@ -4,16 +4,8 @@ import threading
 import math
 from datetime import datetime
 
-DIAMETER1 = 1.84
-LENGHT1 = 1.86
 CAPACITY1 = 4950
-
-DIAMETER2 = 1.84
-LENGHT2 = 1.86
 CAPACITY2 = 4950
-
-DIAMETER3 = 1.84
-LENGHT3 = 1.86
 CAPACITY3 = 4950
 
 
@@ -21,22 +13,20 @@ UDP_PORT1 = 12345
 UDP_PORT2 = 12346
 UDP_PORT3 = 12347
 
-def calculate_liters(data, diameter, lenght):
-    fuel_height = diameter - float(data)/100
-    alfa = math.acos((diameter - 2 * fuel_height) / diameter)
-    liters = 1000*lenght * (alfa * (diameter/2)**2 - (diameter/2 - fuel_height) * math.sqrt(diameter * fuel_height - fuel_height**2))
+def calculate_liters(data, capacity):
+    data=float(data)-20
+    percentage = (135 - data )/1.35
+    liters = capacity * percentage / 100
+    return round(percentage), round(liters)
 
-    return liters
 
+def update_ui(liters_label, percentage_label, progress_bar, time_label, capacity,data):
+    percentage, liters= calculate_liters(data, capacity)
 
-def update_ui(liters_label, percentage_label, progress_bar, time_label, capacity, diameter, lenght,data):
-    liters = calculate_liters(data, diameter, lenght)
-    capacity_percentage = (liters / capacity) * 100
-
-    liters_label_text = f"Liters: {liters:.2f}"
+    liters_label_text = f"Liters: {liters}"
     liters_label.configure(text=liters_label_text)
 
-    percentage_label_text = f"{capacity_percentage:.2f}%"
+    percentage_label_text = f"{percentage}%"
     percentage_label.configure(text=percentage_label_text)
 
     progress_bar_value = liters / capacity
@@ -109,9 +99,9 @@ label_liters3.grid(row=2, column=2, padx=40, pady=40)
 label_last_update3 = customtkinter.CTkLabel(app, text =f"{time}", font = (None, 15))
 label_last_update3.grid(row=3, column=2, padx=40, pady=0)
 
-udp_thread1 = threading.Thread(target=udp, args=(UDP_PORT1,(update_ui, label_liters1, label_percentage1, progressbar1, label_last_update1, CAPACITY1, DIAMETER1, LENGHT1)))
-udp_thread2 = threading.Thread(target=udp, args=(UDP_PORT2,(update_ui, label_liters2, label_percentage2, progressbar2, label_last_update2, CAPACITY2, DIAMETER2, LENGHT2)))
-udp_thread3 = threading.Thread(target=udp, args=(UDP_PORT3,(update_ui, label_liters3, label_percentage3, progressbar3, label_last_update3, CAPACITY3, DIAMETER3, LENGHT3)))
+udp_thread1 = threading.Thread(target=udp, args=(UDP_PORT1,(update_ui, label_liters1, label_percentage1, progressbar1, label_last_update1, CAPACITY1)))
+udp_thread2 = threading.Thread(target=udp, args=(UDP_PORT2,(update_ui, label_liters2, label_percentage2, progressbar2, label_last_update2, CAPACITY2)))
+udp_thread3 = threading.Thread(target=udp, args=(UDP_PORT3,(update_ui, label_liters3, label_percentage3, progressbar3, label_last_update3, CAPACITY3)))
 
 udp_thread1.start()
 udp_thread2.start()
